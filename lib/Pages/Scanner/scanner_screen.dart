@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:noq/Pages/Scanner/scanner_bottom_sheet_panel.dart';
+
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'dart:io';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:noq/Controllers/scannerController.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_svg/svg.dart';
 
 class ScannerScreen extends StatefulWidget {
   ScannerController scannerController = Get.find();
+
   ScannerScreen({Key? key}) : super(key: key);
 
   @override
@@ -19,6 +22,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   Barcode? result;
   QRViewController? controller;
   final panelController = PanelController();
+  TextEditingController barcodeInputController = TextEditingController();
 
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.
@@ -32,9 +36,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }
   }
 
+  final _globalKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _globalKey,
       body: SafeArea(
         child: Container(
           height: MediaQuery.of(context).size.height,
@@ -62,10 +69,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     cutOutSize: MediaQuery.of(context).size.width * 0.8,
                   ),
                 ),
-                panelBuilder: (sc) => ScannerBottomSheetPanel(
-                  sc: sc,
-                  panelController: panelController,
-                ),
+                panelBuilder: (sc) => getBottomSheet(sc),
+                //     ScannerBottomSheetPanel(
+                //   sc: sc,
+                //   panelController: panelController,
+                // ),
               ),
               Container(
                   padding: EdgeInsets.all(10),
@@ -159,13 +167,167 @@ class _ScannerScreenState extends State<ScannerScreen> {
 //               .code}')
 //           : Text('Scan a code',),);
 
+  // Function to fetch data or show error if data isn't present
+  Future getDoc(String value) async {
+    var db =
+        await FirebaseFirestore.instance.collection("product").doc(value).get();
+
+    if (db.data() == null) {
+      _globalKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                height: 90,
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Color(0xFFC72C41),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(20),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 48),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Oh Snap!",
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Spacer(),
+                          Text(
+                            "The Product Id is not Valid. Scan it Using Scanner",
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                // left: 0,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                  ),
+                  child: SvgPicture.asset(
+                    "assets/bubbles.svg",
+                    color: Color(0xFF801336),
+                    height: 70,
+                    width: 45,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: -20,
+                left: 0,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      "assets/chat.svg",
+                      color: Colors.red.shade900,
+                      height: 48,
+                      width: 40,
+                    ),
+                    Positioned(
+                      top: 15,
+                      child: Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+      );
+    } else {
+      db.data()?.values.map((e) => print(e));
+      Get.toNamed(
+        "/productDescriptionScreen",
+        arguments: {"barcodeDigit": value},
+      );
+    }
+  }
+
+  Widget getBottomSheet(ScrollController sc) {
+    return ListView(
+      controller: sc,
+      padding: EdgeInsets.zero,
+      children: [
+        const SizedBox(height: 15),
+        buildDragHandle(),
+        const SizedBox(height: 10),
+        buildQRInputNumber(),
+        Container(
+          padding: const EdgeInsets.all(20.0),
+          child: ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(
+                Colors.green.shade500,
+              ),
+              overlayColor: MaterialStateProperty.all(
+                Colors.green.shade600,
+              ),
+              padding: MaterialStateProperty.all(
+                const EdgeInsets.symmetric(
+                  vertical: 15.0,
+                  horizontal: 13.0,
+                ),
+              ),
+            ),
+            onPressed: () async {
+              await getDoc(barcodeInputController.text);
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text(
+                  "Submit",
+                  style: TextStyle(color: Colors.white, fontSize: 17),
+                ),
+                SizedBox(width: 10),
+                Icon(
+                  Icons.exit_to_app,
+                  color: Colors.white,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
-    controller.scannedDataStream.listen((scanData) {
+    controller.scannedDataStream.listen((scanData) async {
       setState(() {
-        // widget.scannerController.result.value = scanData;
         result = scanData;
       });
+      if (result!.code != null) await getDoc(result!.code.toString());
     });
   }
 
@@ -173,5 +335,55 @@ class _ScannerScreenState extends State<ScannerScreen> {
   void dispose() {
     controller?.dispose();
     super.dispose();
+  }
+
+  Widget buildDragHandle() {
+    return GestureDetector(
+      onTap: togglePanel,
+      child: Center(
+        child: Container(
+          width: 30,
+          height: 5,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void togglePanel() => panelController.isPanelOpen
+      ? panelController.close()
+      : panelController.open();
+
+  Widget buildQRInputNumber() {
+    return Container(
+      padding: const EdgeInsets.all(20.0),
+      child: TextFormField(
+        controller: barcodeInputController,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+          focusedBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.green,
+            ),
+          ),
+          enabledBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.green,
+            ),
+          ),
+          prefixIcon: const Icon(
+            Icons.onetwothree,
+            color: Colors.green,
+          ),
+          hintText: "Enter the Barcode Digits",
+          hintStyle: const TextStyle(color: Colors.green),
+          filled: true,
+          fillColor: Colors.green.shade100,
+        ),
+      ),
+    );
   }
 }

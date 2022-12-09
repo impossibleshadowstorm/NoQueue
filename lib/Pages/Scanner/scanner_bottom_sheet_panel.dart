@@ -3,13 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_svg/svg.dart';
 
 class ScannerBottomSheetPanel extends StatefulWidget {
   final ScrollController sc;
   final PanelController panelController;
 
   const ScannerBottomSheetPanel(
-      {Key? key, required this.sc, required this.panelController})
+      {Key? key,
+      required this.sc,
+      required this.panelController})
       : super(key: key);
 
   @override
@@ -19,22 +22,6 @@ class ScannerBottomSheetPanel extends StatefulWidget {
 
 class _ScannerBottomSheetPanelState extends State<ScannerBottomSheetPanel> {
   TextEditingController barcodeInputController = TextEditingController();
-
-  Future getDoc(String value) async {
-    var db =
-        await FirebaseFirestore.instance.collection("product").doc(value).get();
-
-    if (db.data() == null) {
-      print("Doesn't exist!");
-    } else {
-      db.data()?.values.map((e) => print(e));
-      print(" Exist");
-      // Get.toNamed(
-      //   "/productDescriptionScreen",
-      //   arguments: {"barcodeDigit": value},
-      // );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +76,23 @@ class _ScannerBottomSheetPanelState extends State<ScannerBottomSheetPanel> {
         ),
       ],
     );
+  }
+
+  Future getDoc(String value) async {
+    var db =
+        await FirebaseFirestore.instance.collection("product").doc(value).get();
+
+    if (db.data() == null) {
+      print("Doesn't exist!");
+
+    } else {
+      db.data()?.values.map((e) => print(e));
+      // print(" Exist");
+      Get.toNamed(
+        "/productDescriptionScreen",
+        arguments: {"barcodeDigit": value},
+      );
+    }
   }
 
   Widget buildDragHandle() {
