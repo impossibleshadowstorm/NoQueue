@@ -1,8 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:noq/Animations/FadeAnimation.dart';
+import 'package:noq/Controllers/authController.dart';
 import 'package:noq/Controllers/cartController.dart';
+import 'package:noq/Pages/Login/final_login_screen.dart';
 
 class LandingScreen extends StatefulWidget {
   LandingScreen({Key? key}) : super(key: key);
@@ -13,6 +16,14 @@ class LandingScreen extends StatefulWidget {
 }
 
 class _LandingScreenState extends State<LandingScreen> {
+  AuthController authController = Get.find();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,10 +66,10 @@ class _LandingScreenState extends State<LandingScreen> {
                     ),
                     FadeAnimation(
                       2,
-                      InkWell(
-                        onTap: () {
-                          // LogOut
-                          print("clicked");
+                      TextButton(
+                        onPressed: () {
+
+                          authController.logoutUser();
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 50.0),
@@ -140,38 +151,38 @@ class _LandingScreenState extends State<LandingScreen> {
                                         Get.toNamed("/cartScreen");
                                       },
                                       child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 10),
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            color: Colors.green,
-                                          ),
-                                          child: Center(
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                Text(
-                                                  'Start Shopping',
-                                                  style: GoogleFonts.ptSans(
-                                                    fontSize: 22,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                const Icon(
-                                                  Icons.arrow_forward_sharp,
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 10),
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          color: Colors.green,
+                                        ),
+                                        child: Center(
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Text(
+                                                'Start Shopping',
+                                                style: GoogleFonts.ptSans(
+                                                  fontSize: 22,
+                                                  fontWeight: FontWeight.bold,
                                                   color: Colors.white,
-                                                )
-                                              ],
-                                            ),
+                                                ),
+                                              ),
+                                              const Icon(
+                                                Icons.arrow_forward_sharp,
+                                                color: Colors.white,
+                                              )
+                                            ],
                                           ),
                                         ),
+                                      ),
                                     ),
                                   ),
                                 ],

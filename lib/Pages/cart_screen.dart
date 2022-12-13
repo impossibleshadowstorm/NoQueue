@@ -1,10 +1,12 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:noq/Pages/landing_screen.dart';
 import '../Controllers/cartController.dart';
 import '../Models/product_model.dart';
 
+// ignore: must_be_immutable
 class CartScreen extends StatefulWidget {
   CartController cartController = Get.find();
 
@@ -14,185 +16,148 @@ class CartScreen extends StatefulWidget {
   State<CartScreen> createState() => _CartScreenState();
 }
 
+extension ColorExtension on String {
+  toColor() {
+    var hexColor = replaceAll("#", "");
+    if (hexColor.length == 6) {
+      hexColor = "FF$hexColor";
+    }
+    if (hexColor.length == 8) {
+      return Color(int.parse("0x$hexColor"));
+    }
+  }
+}
+
 class _CartScreenState extends State<CartScreen> {
   _buildCartItem(CartController cartController, int index) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 25.0),
-      child: Container(
-        height: 110.0,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(35.0),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black38,
-              offset: Offset(0, 2),
-              blurRadius: 20.0,
-            ),
-          ],
-        ),
-        child: Stack(
-          alignment: Alignment.centerLeft,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Product Image
-                Container(
-                  margin: const EdgeInsets.all(5.0),
-                  width: 100.0,
-                  height: 104.0,
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(30.0),
-                      bottomLeft: Radius.circular(30.0),
-                    ),
-                    color: Colors.green.shade300,
-                    // color: Color(0xFFA5DAEA),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10.0),
-                    child: Image(
-                      image: NetworkImage(
-                        // "https://raw.githubusercontent.com/SayujSujeev/Furniture-App-UI/Final/assets/images/deskchair.png"),
-                        cartController.cartProduct[index].product.imageUrl
-                            .toString(),
+    return InkWell(
+      onTap: () {
+        Get.toNamed(
+          "/productDescriptionScreen",
+          arguments: {
+            "barcodeDigit":
+                cartController.cartProduct[index].product.productID.toString()
+          },
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 25.0),
+        child: Container(
+          height: 110.0,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(35.0),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black38,
+                offset: Offset(0, 2),
+                blurRadius: 20.0,
+              ),
+            ],
+          ),
+          child: Stack(
+            alignment: Alignment.centerLeft,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Product Image
+                  Container(
+                    margin: const EdgeInsets.all(5.0),
+                    width: 100.0,
+                    height: 104.0,
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(30.0),
+                        bottomLeft: Radius.circular(30.0),
                       ),
-                      fit: BoxFit.contain,
+                      // color: Colors.green.shade300,
+                      color: cartController
+                          .cartProduct[index].product.backgroundColor
+                          .toColor(),
+                      // color: Color(0xFFA5DAEA),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Image(
+                        image: NetworkImage(
+                          cartController.cartProduct[index].product.imageUrl
+                              .toString(),
+                        ),
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: (MediaQuery.of(context).size.width - 160) - 50,
-                          // color: Colors.red,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 5.0,
-                            horizontal: 10.0,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                cartController
-                                    .cartProduct[index].product.productName
-                                    .toString(),
-                                style: const TextStyle(
-                                  fontSize: 15.0,
-                                  color: Color(0xFF2A2941),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 5.0,
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(
-                                    Icons.attach_money,
-                                    size: 10.0,
-                                  ),
-                                  const SizedBox(width: 2.0),
-                                  Text(
-                                    cartController
-                                        .cartProduct[index].product.productPrice
-                                        .toString(),
-                                    style: const TextStyle(
-                                      fontSize: 15.0,
-                                      color: Color(0xFF2A2941),
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 30,
-                          height: 80.0,
-                          child: Column(
-                            children: [
-                              // Increase Item Button
-                              InkWell(
-                                onTap: () {
-                                  cartController.increaseItemsInCart(
-                                    Product(
-                                      productID: cartController
-                                          .cartProduct[index].product.productID,
-                                      productName: cartController
-                                          .cartProduct[index]
-                                          .product
-                                          .productName,
-                                      productPrice: cartController
-                                          .cartProduct[index]
-                                          .product
-                                          .productPrice,
-                                      imageUrl: cartController
-                                          .cartProduct[index].product.imageUrl,
-                                      backgroundColor: cartController
-                                          .cartProduct[index]
-                                          .product
-                                          .backgroundColor,
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  width: 25,
-                                  height: 25,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.green.shade200,
-                                    // color: Color(0xFFA5DAEA),
-                                  ),
-                                  child: const Icon(
-                                    Icons.add,
-                                    color: Colors.black,
-                                    size: 18.0,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width:
+                                (MediaQuery.of(context).size.width - 160) - 50,
+                            // color: Colors.red,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 5.0,
+                              horizontal: 10.0,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  cartController
+                                      .cartProduct[index].product.productName
+                                      .toString(),
+                                  style: const TextStyle(
+                                    fontSize: 15.0,
+                                    color: Color(0xFF2A2941),
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                              ),
-                              // Number of items present in the cart
-                              Expanded(
-                                child: Center(
-                                  child: Obx(
-                                    () => Text(
-                                      cartController.cartProduct[index].qty
+                                const SizedBox(
+                                  height: 5.0,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Icon(
+                                      Icons.attach_money,
+                                      size: 10.0,
+                                    ),
+                                    const SizedBox(width: 2.0),
+                                    Text(
+                                      cartController.cartProduct[index].product
+                                          .productPrice
                                           .toString(),
                                       style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15.0,
+                                        color: Color(0xFF2A2941),
+                                        fontWeight: FontWeight.w800,
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ),
-                              // Decrease Item Button
-                              InkWell(
-                                onTap: () {
-                                  if (cartController.cartProduct[index].qty ==
-                                      1) {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AdvanceCustomAlert(index: index);
-                                      },
-                                    );
-                                  } else {
-                                    cartController.decreaseItemsInCart(
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 30,
+                            height: 80.0,
+                            child: Column(
+                              children: [
+                                // Increase Item Button
+                                InkWell(
+                                  onTap: () {
+                                    cartController.increaseItemsInCart(
                                       Product(
                                         productID: cartController
                                             .cartProduct[index]
@@ -216,12 +181,79 @@ class _CartScreenState extends State<CartScreen> {
                                             .backgroundColor,
                                       ),
                                     );
-                                  }
-                                },
-                                child: Container(
-                                  width: 25,
-                                  height: 25,
-                                  decoration: const BoxDecoration(
+                                  },
+                                  child: Container(
+                                    width: 25,
+                                    height: 25,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.green.shade200,
+                                      // color: Color(0xFFA5DAEA),
+                                    ),
+                                    child: const Icon(
+                                      Icons.add,
+                                      color: Colors.black,
+                                      size: 18.0,
+                                    ),
+                                  ),
+                                ),
+                                // Number of items present in the cart
+                                Expanded(
+                                  child: Center(
+                                    child: Obx(
+                                      () => Text(
+                                        cartController.cartProduct[index].qty
+                                            .toString(),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                // Decrease Item Button
+                                InkWell(
+                                  onTap: () {
+                                    if (cartController.cartProduct[index].qty ==
+                                        1) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AdvanceCustomAlert(
+                                              index: index);
+                                        },
+                                      );
+                                    } else {
+                                      cartController.decreaseItemsInCart(
+                                        Product(
+                                          productID: cartController
+                                              .cartProduct[index]
+                                              .product
+                                              .productID,
+                                          productName: cartController
+                                              .cartProduct[index]
+                                              .product
+                                              .productName,
+                                          productPrice: cartController
+                                              .cartProduct[index]
+                                              .product
+                                              .productPrice,
+                                          imageUrl: cartController
+                                              .cartProduct[index]
+                                              .product
+                                              .imageUrl,
+                                          backgroundColor: cartController
+                                              .cartProduct[index]
+                                              .product
+                                              .backgroundColor,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: Container(
+                                    width: 25,
+                                    height: 25,
+                                    decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: Colors.white,
                                       boxShadow: [
@@ -230,38 +262,43 @@ class _CartScreenState extends State<CartScreen> {
                                           offset: Offset(0, -1),
                                           blurRadius: 20.0,
                                         ),
-                                      ]),
-                                  child: Obx(
-                                    () =>
-                                        cartController.cartProduct[index].qty >
-                                                1
-                                            ? const Icon(
-                                                Icons.remove,
-                                                color: Colors.black,
-                                                size: 18.0,
-                                              )
-                                            : Icon(
-                                                Icons.delete,
-                                                color: Colors.red.shade300,
-                                                size: 18.0,
-                                              ),
+                                      ],
+                                    ),
+                                    child: Obx(
+                                      () => cartController
+                                                  .cartProduct[index].qty >
+                                              1
+                                          ? const Icon(
+                                              Icons.remove,
+                                              color: Colors.black,
+                                              size: 18.0,
+                                            )
+                                          : Icon(
+                                              Icons.delete,
+                                              color: Colors.red.shade300,
+                                              size: 18.0,
+                                            ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ],
+                        ],
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+
+  var db = FirebaseFirestore.instance.collection("user");
+  var auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -294,7 +331,7 @@ class _CartScreenState extends State<CartScreen> {
         centerTitle: true,
         elevation: 0.0,
         actions: [
-          Container(
+          SizedBox(
             width: 50,
             height: 40,
             child: Center(
@@ -309,22 +346,47 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
           const SizedBox(width: 10.0),
-          InkWell(
-            onTap: () => {Get.toNamed("/profileScreen")},
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: NetworkImage(
-                    "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg",
+          FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+              future: db
+                  .doc(auth.currentUser?.phoneNumber?.replaceAll("+91", ""))
+                  .get(),
+              builder: (_, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      padding: const EdgeInsets.all(8.0),
+                      child: const CircularProgressIndicator(
+                        color: Colors.green,
+                        backgroundColor: Colors.white,
+                      ),
+                    ),
+                  );
+                }
+                return InkWell(
+                  onTap: () => {Get.toNamed("/profileScreen")},
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: NetworkImage(
+                          snapshot.data!.data()!["profileImage"] ??
+                              (snapshot.data!.data()!["profileImage"] == "Mr."
+                                  ? "https://www.w3schools.com/howto/img_avatar.png"
+                                  : "https://www.w3schools.com/howto/img_avatar2.png"),
+                          // "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg",
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
-          ),
+                );
+              }),
           const SizedBox(width: 10.0)
         ],
       ),
@@ -348,7 +410,7 @@ class _CartScreenState extends State<CartScreen> {
         child: Obx(
           () => ListView.builder(
             itemCount: widget.cartController.products.length,
-            physics: BouncingScrollPhysics(),
+            physics: const BouncingScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
               return _buildCartItem(widget.cartController, index);
             },
@@ -405,7 +467,7 @@ class _CartScreenState extends State<CartScreen> {
                             ),
                             const SizedBox(width: 5.0),
                             widget.cartController.products.length == 0
-                                ? Text(
+                                ? const Text(
                                     "NA",
                                     style: TextStyle(
                                       fontSize: 15.0,
@@ -417,7 +479,7 @@ class _CartScreenState extends State<CartScreen> {
                                       widget.cartController.products.length
                                           .toString()
                                           .padLeft(2, "0"),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 15.0,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -440,7 +502,7 @@ class _CartScreenState extends State<CartScreen> {
                             ),
                             const SizedBox(width: 5.0),
                             widget.cartController.totalQuantity == 0
-                                ? Text(
+                                ? const Text(
                                     "NA",
                                     style: TextStyle(
                                       fontSize: 15.0,
@@ -451,7 +513,7 @@ class _CartScreenState extends State<CartScreen> {
                                     () => Text(
                                       widget.cartController.totalQuantity
                                           .toString(),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 15.0,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -481,7 +543,7 @@ class _CartScreenState extends State<CartScreen> {
                                 widget.cartController.totalPrice
                                     .toString()
                                     .padRight(2, "0"),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 22,
@@ -492,7 +554,7 @@ class _CartScreenState extends State<CartScreen> {
                                   widget.cartController.totalPrice
                                       .toString()
                                       .padLeft(2, "0"),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 22,
@@ -544,6 +606,7 @@ class _CartScreenState extends State<CartScreen> {
 }
 
 // Dialog Box for Product removal from cart
+// ignore: must_be_immutable
 class AdvanceCustomAlert extends StatelessWidget {
   final int index;
   CartController cartController = Get.find();
@@ -565,13 +628,13 @@ class AdvanceCustomAlert extends StatelessWidget {
                 BoxShadow(
                   color: Colors.red.shade100,
                   blurRadius: 20.0,
-                  offset: Offset(0, 10),
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
             height: 200,
             width: MediaQuery.of(context).size.width,
-            padding: EdgeInsets.fromLTRB(10, 50, 10, 10),
+            padding: const EdgeInsets.fromLTRB(10, 50, 10, 10),
             child: Column(
               children: [
                 Text(
@@ -582,7 +645,7 @@ class AdvanceCustomAlert extends StatelessWidget {
                       fontSize: 18,
                       color: Colors.red.shade300),
                 ),
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 Text(
                   "Are you sure you want to remove this item?",
                   textAlign: TextAlign.center,
@@ -591,10 +654,10 @@ class AdvanceCustomAlert extends StatelessWidget {
                     color: Colors.grey.shade700,
                   ),
                 ),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -607,7 +670,7 @@ class AdvanceCustomAlert extends StatelessWidget {
                           onPressed: () {
                             Get.back();
                           },
-                          child: Text(
+                          child: const Text(
                             "Cancel",
                             style: TextStyle(
                               color: Colors.black,
@@ -615,7 +678,7 @@ class AdvanceCustomAlert extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(width: 4),
+                      const SizedBox(width: 4),
                       Expanded(
                         child: ElevatedButton(
                           style: ButtonStyle(
@@ -639,7 +702,7 @@ class AdvanceCustomAlert extends StatelessWidget {
                               ),
                             );
                           },
-                          child: Text(
+                          child: const Text(
                             "Remove",
                             style: TextStyle(
                               color: Colors.white,
@@ -653,7 +716,8 @@ class AdvanceCustomAlert extends StatelessWidget {
               ],
             ),
           ),
-          Positioned(
+          const Positioned(
+            top: -40,
             child: CircleAvatar(
               backgroundColor: Colors.redAccent,
               radius: 40,
@@ -663,7 +727,6 @@ class AdvanceCustomAlert extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            top: -40,
           ),
         ],
       ),
@@ -672,6 +735,7 @@ class AdvanceCustomAlert extends StatelessWidget {
 }
 
 // Dialog Box for Deleting Cart
+// ignore: must_be_immutable
 class DeleteCartAlert extends StatelessWidget {
   CartController cartController = Get.find();
 
@@ -686,7 +750,7 @@ class DeleteCartAlert extends StatelessWidget {
         alignment: Alignment.topCenter,
         children: [
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
@@ -698,7 +762,7 @@ class DeleteCartAlert extends StatelessWidget {
             ),
             height: 250,
             width: double.infinity,
-            padding: EdgeInsets.fromLTRB(10, 50, 10, 10),
+            padding: const EdgeInsets.fromLTRB(10, 50, 10, 10),
             child: Column(
               children: [
                 Text(
@@ -709,7 +773,7 @@ class DeleteCartAlert extends StatelessWidget {
                       fontSize: 18,
                       color: Colors.red.shade300),
                 ),
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 Text(
                   "Are you sure you want to Delete this Cart?",
                   textAlign: TextAlign.center,
@@ -718,10 +782,10 @@ class DeleteCartAlert extends StatelessWidget {
                     color: Colors.grey.shade700,
                   ),
                 ),
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                  children: const [
                     Icon(
                       Icons.error_outline,
                       size: 12,
@@ -739,7 +803,7 @@ class DeleteCartAlert extends StatelessWidget {
                     ),
                   ],
                 ),
-                Text(
+                const Text(
                   "added products!",
                   maxLines: 2,
                   textAlign: TextAlign.center,
@@ -748,10 +812,10 @@ class DeleteCartAlert extends StatelessWidget {
                     color: Colors.red,
                   ),
                 ),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -764,7 +828,7 @@ class DeleteCartAlert extends StatelessWidget {
                           onPressed: () {
                             Get.back();
                           },
-                          child: Text(
+                          child: const Text(
                             "Cancel",
                             style: TextStyle(
                               color: Colors.black,
@@ -772,7 +836,7 @@ class DeleteCartAlert extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(width: 4),
+                      const SizedBox(width: 4),
                       Expanded(
                         child: ElevatedButton(
                           style: ButtonStyle(
@@ -783,7 +847,7 @@ class DeleteCartAlert extends StatelessWidget {
                             Get.delete<CartController>();
                             Get.off(() => LandingScreen());
                           },
-                          child: Text(
+                          child: const Text(
                             "Remove",
                             style: TextStyle(
                               color: Colors.white,
@@ -797,7 +861,8 @@ class DeleteCartAlert extends StatelessWidget {
               ],
             ),
           ),
-          Positioned(
+          const Positioned(
+            top: -40,
             child: CircleAvatar(
               backgroundColor: Colors.redAccent,
               radius: 40,
@@ -807,7 +872,6 @@ class DeleteCartAlert extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            top: -40,
           ),
         ],
       ),

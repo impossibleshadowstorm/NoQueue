@@ -1,13 +1,16 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:noq/Pages/Scanner/scanner_screen.dart';
-import 'package:noq/Pages/Scanner/dummy.dart';
 import 'package:noq/Pages/cart_screen.dart';
 import 'package:noq/Pages/Login/final_login_screen.dart';
 import 'package:noq/Pages/landing_screen.dart';
 import 'package:noq/Pages/Login/OTP/otp_screen.dart';
 import 'package:noq/Pages/ProductDescription/product_description_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'Login/Registration/user_registration.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -17,12 +20,40 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  var auth = FirebaseAuth.instance;
+  var isLogin = false;
+
+  checkIfLogin() async {
+    auth.authStateChanges().listen((User? user) {
+      if (user != null && mounted) {
+        print("hello");
+        setState(() {
+          isLogin = true;
+        });
+      }
+    });
+  }
+
+  _init() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("userID");
+    if (token != null) {
+      print('Token: $token');
+      Get.offAll(() => LandingScreen());
+    } else {
+      Get.offAll(() => const UserAuthentication());
+    }
+  }
+
   @override
   void initState() {
+    checkIfLogin();
     Timer(
       const Duration(seconds: 2),
-      () => {
-        Get.off(() => ScannerScreen())
+      () {
+        // Get.off(() => isLogin ? LandingScreen() : const UserAuthentication());
+        // Get.to(() => const Registration());
+        _init();
       },
     );
     super.initState();

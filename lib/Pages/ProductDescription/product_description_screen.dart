@@ -7,6 +7,7 @@ import 'package:noq/Controllers/cartController.dart';
 import 'package:noq/Models/product_model.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+// ignore: must_be_immutable
 class ProductDescriptionScreen extends StatefulWidget {
   CartController cartController = Get.find();
 
@@ -17,21 +18,23 @@ class ProductDescriptionScreen extends StatefulWidget {
       _ProductDescriptionScreenState();
 }
 
+extension ColorExtension on String {
+  toColor() {
+    var hexColor = replaceAll("#", "");
+    if (hexColor.length == 6) {
+      hexColor = "FF$hexColor";
+    }
+    if (hexColor.length == 8) {
+      return Color(int.parse("0x$hexColor"));
+    }
+  }
+}
+
 class _ProductDescriptionScreenState extends State<ProductDescriptionScreen> {
   var db = FirebaseFirestore.instance
       .collection("product")
       .doc(Get.arguments?['barcodeDigit']);
   final panelController = PanelController();
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  // Future<dynamic> getData() async {
-  //   final DocumentReference document =   FirebaseFirestore.instance.collection("listofprods").document('ac1');
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +50,7 @@ class _ProductDescriptionScreenState extends State<ProductDescriptionScreen> {
             // docRef.get().then((DocumentSnapshot doc) {
             //   final data = doc.data() as Map<String, dynamic>;
             // });
-            else{
+            else {
               return Stack(
                 children: [
                   SlidingUpPanel(
@@ -71,7 +74,10 @@ class _ProductDescriptionScreenState extends State<ProductDescriptionScreen> {
                       ),
                       height: MediaQuery.of(context).size.height,
                       decoration: BoxDecoration(
-                        color: Colors.red.shade300,
+                        color: snapshot.data!
+                            .data()!["backgroundColor"]
+                            .toString()
+                            .toColor(),
                       ),
                       child: Column(
                         children: [
@@ -82,7 +88,6 @@ class _ProductDescriptionScreenState extends State<ProductDescriptionScreen> {
                             decoration: BoxDecoration(
                               image: DecorationImage(
                                 image: NetworkImage(
-                                  // "https://firebasestorage.googleapis.com/v0/b/noqueue-35cdf.appspot.com/o/cherries.png?alt=media&token=ca7ebf5a-1713-473e-b18f-f1cf2457a82f",
                                   snapshot.data!.data()!["image"],
                                 ),
                                 fit: BoxFit.contain,
@@ -202,7 +207,7 @@ class _ProductDescriptionScreenState extends State<ProductDescriptionScreen> {
                                         ),
                                       ),
                                     ),
-                                    Container(
+                                    SizedBox(
                                       height: 49,
                                       width: 100,
                                       child: Center(

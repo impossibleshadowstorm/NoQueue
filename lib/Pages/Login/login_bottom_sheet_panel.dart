@@ -2,8 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:noq/Controllers/authController.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-
+import 'package:noq/Pages/Login/OTP/otp_screen.dart';
 import '../../Animations/FadeAnimation.dart';
 
 class LoginBottomSheetPanel extends StatefulWidget {
@@ -16,15 +17,16 @@ class LoginBottomSheetPanel extends StatefulWidget {
 
   @override
   State<LoginBottomSheetPanel> createState() => _LoginBottomSheetPanelState();
+
+  static String verify = "";
 }
 
 class _LoginBottomSheetPanelState extends State<LoginBottomSheetPanel> {
-  TextEditingController countrycode = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
+  AuthController authController = Get.put(AuthController());
 
   @override
   void initState() {
-    countrycode.text = "+91";
+    authController.countryCode.text = "+91";
     super.initState();
   }
 
@@ -57,7 +59,7 @@ class _LoginBottomSheetPanelState extends State<LoginBottomSheetPanel> {
                       BoxShadow(
                         color: Colors.green.shade100,
                         blurRadius: 20.0,
-                        offset: Offset(0, 10),
+                        offset: const Offset(0, 10),
                       ),
                     ],
                   ),
@@ -73,7 +75,7 @@ class _LoginBottomSheetPanelState extends State<LoginBottomSheetPanel> {
                           ),
                         ),
                         child: TextField(
-                          controller: phoneController,
+                          controller: authController.phoneController,
                           keyboardType: TextInputType.phone,
                           decoration: const InputDecoration(
                             prefixIcon: Icon(
@@ -94,16 +96,20 @@ class _LoginBottomSheetPanelState extends State<LoginBottomSheetPanel> {
               // Login Button
               GestureDetector(
                 onTap: () async {
-                  print(countrycode.text + phoneController.text);
                   await FirebaseAuth.instance.verifyPhoneNumber(
-                    phoneNumber: countrycode.text + phoneController.text,
-                    verificationCompleted: (PhoneAuthCredential credential) {},
+                    phoneNumber: authController.countryCode.text +
+                        authController.phoneController.text,
+                    verificationCompleted: (
+                      PhoneAuthCredential credential,
+                    ) {},
                     verificationFailed: (FirebaseAuthException e) {},
-                    codeSent: (String verificationId, int? resendToken) {},
+                    codeSent: (String verificationId, int? resendToken) {
+                      authController.verify = verificationId;
+                      Get.to(() =>
+                          OTPScreen(verify: LoginBottomSheetPanel.verify));
+                    },
                     codeAutoRetrievalTimeout: (String verificationId) {},
                   );
-                  print("verified");
-                  Get.toNamed("/otpScreen");
                 },
                 child: FadeAnimation(
                   1.6,
@@ -125,9 +131,10 @@ class _LoginBottomSheetPanelState extends State<LoginBottomSheetPanel> {
                       child: Text(
                         "Get OTP",
                         style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold),
+                          color: Colors.white,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -161,9 +168,9 @@ class _LoginBottomSheetPanelState extends State<LoginBottomSheetPanel> {
       ? widget.panelController.close()
       : widget.panelController.open();
 
-  Widget InputPhoneNumber() {
+  Widget inputPhoneNumber() {
     return Container(
-      padding: EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(20.0),
       child: TextFormField(
         keyboardType: TextInputType.number,
         decoration: InputDecoration(
@@ -182,7 +189,9 @@ class _LoginBottomSheetPanelState extends State<LoginBottomSheetPanel> {
             color: Colors.green,
           ),
           hintText: "Enter the Barcode Digits",
-          hintStyle: const TextStyle(color: Colors.green),
+          hintStyle: const TextStyle(
+            color: Colors.green,
+          ),
           filled: true,
           fillColor: Colors.green.shade100,
         ),

@@ -2,20 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:get/get.dart';
 import '../../../Animations/FadeAnimation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:noq/Pages/landing_screen.dart';
+
+import '../../../Controllers/authController.dart';
 
 class OTPBottomSheetPanel extends StatefulWidget {
   final ScrollController sc;
   final PanelController panelController;
+  final String verify;
 
-  const OTPBottomSheetPanel(
-      {Key? key, required this.sc, required this.panelController})
-      : super(key: key);
+  const OTPBottomSheetPanel({
+    Key? key,
+    required this.sc,
+    required this.panelController,
+    required this.verify,
+  }) : super(key: key);
 
   @override
   State<OTPBottomSheetPanel> createState() => _OTPBottomSheetPanelState();
 }
 
 class _OTPBottomSheetPanelState extends State<OTPBottomSheetPanel> {
+  AuthController authController = Get.find();
+
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -47,12 +59,30 @@ class _OTPBottomSheetPanelState extends State<OTPBottomSheetPanel> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _textFieldOTP(first: true, last: false),
-                        _textFieldOTP(first: false, last: false),
-                        _textFieldOTP(first: false, last: false),
-                        _textFieldOTP(first: false, last: false),
-                        _textFieldOTP(first: false, last: false),
-                        _textFieldOTP(first: false, last: true),
+                        _textFieldOTP(
+                            first: true,
+                            last: false,
+                            controller: authController.otpController1),
+                        _textFieldOTP(
+                            first: false,
+                            last: false,
+                            controller: authController.otpController2),
+                        _textFieldOTP(
+                            first: false,
+                            last: false,
+                            controller: authController.otpController3),
+                        _textFieldOTP(
+                            first: false,
+                            last: false,
+                            controller: authController.otpController4),
+                        _textFieldOTP(
+                            first: false,
+                            last: false,
+                            controller: authController.otpController5),
+                        _textFieldOTP(
+                            first: false,
+                            last: true,
+                            controller: authController.otpController6),
                       ],
                     ),
                     const SizedBox(
@@ -61,8 +91,8 @@ class _OTPBottomSheetPanelState extends State<OTPBottomSheetPanel> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-
+                        onPressed: () async {
+                          authController.loginUser();
                         },
                         style: ButtonStyle(
                           foregroundColor:
@@ -104,7 +134,9 @@ class _OTPBottomSheetPanelState extends State<OTPBottomSheetPanel> {
                 height: 18,
               ),
               InkWell(
-                onTap: () => Get.back(),
+                onTap: () {
+                  Get.back();
+                },
                 child: const Text(
                   "Edit Phone No.",
                   style: TextStyle(
@@ -143,13 +175,13 @@ class _OTPBottomSheetPanelState extends State<OTPBottomSheetPanel> {
       ? widget.panelController.close()
       : widget.panelController.open();
 
-  Widget _textFieldOTP({required bool first, last}) {
+  Widget _textFieldOTP(
+      {required bool first, last, required TextEditingController controller}) {
     return SizedBox(
       height: 70,
       width: 45,
-      // child: AspectRatio(
-      //   aspectRatio: 1.0,
       child: TextField(
+        controller: controller,
         autofocus: true,
         onChanged: (value) {
           if (value.length == 1 && last == false) {
@@ -162,14 +194,21 @@ class _OTPBottomSheetPanelState extends State<OTPBottomSheetPanel> {
         showCursor: false,
         readOnly: false,
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+        ),
         keyboardType: TextInputType.number,
         maxLength: 1,
         decoration: InputDecoration(
           counter: const Offstage(),
           enabledBorder: OutlineInputBorder(
-              borderSide: const BorderSide(width: 2, color: Colors.black12),
-              borderRadius: BorderRadius.circular(12)),
+            borderSide: const BorderSide(
+              width: 2,
+              color: Colors.black12,
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
           focusedBorder: OutlineInputBorder(
             borderSide: const BorderSide(
               width: 2,
@@ -179,7 +218,6 @@ class _OTPBottomSheetPanelState extends State<OTPBottomSheetPanel> {
           ),
         ),
       ),
-      // ),
     );
   }
 }

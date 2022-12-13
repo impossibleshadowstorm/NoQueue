@@ -8,6 +8,7 @@ import 'package:noq/Controllers/scannerController.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/svg.dart';
 
+// ignore: must_be_immutable
 class ScannerScreen extends StatefulWidget {
   ScannerController scannerController = Get.find();
 
@@ -43,7 +44,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     return Scaffold(
       key: _globalKey,
       body: SafeArea(
-        child: Container(
+        child: SizedBox(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
           child: Stack(
@@ -70,13 +71,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   ),
                 ),
                 panelBuilder: (sc) => getBottomSheet(sc),
-                //     ScannerBottomSheetPanel(
-                //   sc: sc,
-                //   panelController: panelController,
-                // ),
               ),
               Container(
-                  padding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
                   height: 50,
                   color: Colors.transparent,
                   width: MediaQuery.of(context).size.width,
@@ -151,22 +148,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
     );
   }
 
-// Widget buildControlButtons() =>Row(
-//   children: [
-//     IconButton()
-//   ],
-// );
-
-// Widget buildResult() =>
-//     Container(padding: EdgeInsets.all(12),
-//       decoration: BoxDecoration(
-//         borderRadius: BorderRadius.circular(8), color: Colors.white,),
-//       child: (result != null)
-//           ? Text(
-//           'Barcode Type: ${describeEnum(result!.format)}   Data: ${result!
-//               .code}')
-//           : Text('Scan a code',),);
-
   // Function to fetch data or show error if data isn't present
   Future getDoc(String value) async {
     var db =
@@ -180,8 +161,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
             children: [
               Container(
                 height: 90,
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
                   color: Color(0xFFC72C41),
                   borderRadius: BorderRadius.all(
                     Radius.circular(20),
@@ -193,7 +174,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                        children: const [
                           Text(
                             "Oh Snap!",
                             style: TextStyle(
@@ -222,12 +203,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 bottom: 0,
                 // left: 0,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(20),
                   ),
                   child: SvgPicture.asset(
                     "assets/bubbles.svg",
-                    color: Color(0xFF801336),
+                    color: const Color(0xFF801336),
                     height: 70,
                     width: 45,
                   ),
@@ -245,7 +226,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                       height: 48,
                       width: 40,
                     ),
-                    Positioned(
+                    const Positioned(
                       top: 15,
                       child: Icon(
                         Icons.close,
@@ -264,7 +245,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
         ),
       );
     } else {
-      db.data()?.values.map((e) => print(e));
+      // db.data()?.values.map((e) => print(e));
       Get.toNamed(
         "/productDescriptionScreen",
         arguments: {"barcodeDigit": value},

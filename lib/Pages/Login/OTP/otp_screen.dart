@@ -6,7 +6,8 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../../../Animations/FadeAnimation.dart';
 
 class OTPScreen extends StatefulWidget {
-  const OTPScreen({Key? key}) : super(key: key);
+  final String verify;
+  OTPScreen({Key? key, required this.verify}) : super(key: key);
 
   @override
   State<OTPScreen> createState() => _OTPScreenState();
@@ -112,6 +113,7 @@ class _OTPScreenState extends State<OTPScreen> {
               panelBuilder: (sc) => OTPBottomSheetPanel(
                 sc: sc,
                 panelController: panelController,
+                verify: widget.verify,
               ),
             ),
           ],
