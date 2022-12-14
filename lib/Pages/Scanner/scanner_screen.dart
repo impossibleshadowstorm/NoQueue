@@ -308,6 +308,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
       setState(() {
         result = scanData;
       });
+      print("scannerdata");
+      print(result!.code);
       if (result!.code != null) await getDoc(result!.code.toString());
     });
   }

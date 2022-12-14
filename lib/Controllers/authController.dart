@@ -30,6 +30,9 @@ class AuthController extends GetxController {
         .doc(phoneController.text)
         .get();
 
+    print(db.data());
+    print(phoneController.text);
+
     try {
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
           smsCode: otpController1.text +
@@ -41,15 +44,23 @@ class AuthController extends GetxController {
           verificationId: verify);
       final user = await _auth.signInWithCredential(credential);
 
+      print("After login");
+
       if (db.data() == null) {
         // final firestore = FirebaseFirestore.instance;
         // firestore.collection('user').doc(phoneController.text).set({
         //   "phone": phoneController.text,
         //   "uid": user.user!.uid,
         // });
+        print("Inside Db.data");
         Get.to(() => Registration(uid: user.user!.uid));
-      }
+      } else {
+        var auth = FirebaseAuth.instance;
 
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString("userID", auth.currentUser!.uid);
+        Get.offAll(() => LandingScreen());
+      }
       // if (user != null) {
       //   // Saving User with Shared Preferences
       //   SharedPreferences prefs = await SharedPreferences.getInstance();

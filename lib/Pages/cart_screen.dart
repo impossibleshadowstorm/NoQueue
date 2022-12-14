@@ -364,6 +364,7 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                   );
                 }
+                print(snapshot.data!.data()!["title"]);
                 return InkWell(
                   onTap: () => {Get.toNamed("/profileScreen")},
                   splashColor: Colors.transparent,
@@ -377,10 +378,9 @@ class _CartScreenState extends State<CartScreen> {
                         fit: BoxFit.cover,
                         image: NetworkImage(
                           snapshot.data!.data()!["profileImage"] ??
-                              (snapshot.data!.data()!["profileImage"] == "Mr."
+                              (snapshot.data!.data()!["title"] == "Mr."
                                   ? "https://www.w3schools.com/howto/img_avatar.png"
                                   : "https://www.w3schools.com/howto/img_avatar2.png"),
-                          // "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg",
                         ),
                       ),
                     ),

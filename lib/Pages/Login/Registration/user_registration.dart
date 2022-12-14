@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -53,6 +54,9 @@ class _RegistrationState extends State<Registration> {
   //   }
   // }
 
+  List<String> gender = ["Mr.", "Miss.", "Mrs."];
+  String? selectedGender = "Mr.";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,6 +65,7 @@ class _RegistrationState extends State<Registration> {
           padding: const EdgeInsets.all(14.0),
           color: Colors.white,
           child: ListView(
+            physics: PageScrollPhysics(),
             children: [
               // Top Registration Image
               SizedBox(
@@ -84,6 +89,39 @@ class _RegistrationState extends State<Registration> {
               ),
               const SizedBox(height: 30),
 
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: const BoxDecoration(
+                  color: Colors.white38,
+                ),
+                child: DropdownButtonFormField<String>(
+                  decoration: InputDecoration(
+                    focusedBorder: UnderlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        width: 0,
+                        color: Colors.green.shade700,
+                      ),
+                    ),
+                  ),
+                  onChanged: (item) => setState(() {
+                    userRegistrationController.selectedGender = item;
+                  }),
+                  value: selectedGender,
+                  items: gender
+                      .map(
+                        (item) => DropdownMenuItem<String>(
+                          value: item,
+                          child: Text(
+                            item,
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+              // const SizedBox(height: 5),
               // Input fields
               Container(
                 child: Row(

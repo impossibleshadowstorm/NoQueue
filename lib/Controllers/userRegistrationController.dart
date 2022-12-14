@@ -24,6 +24,9 @@ class UserRegistrationController extends GetxController {
   final TextEditingController phoneController = authController.phoneController;
   final TextEditingController addressController = TextEditingController();
 
+
+  String? selectedGender = "Mr.";
+
   Future<void> setUserData() async {
     // var db = await FirebaseFirestore.instance
     //     .collection("user")
@@ -34,10 +37,11 @@ class UserRegistrationController extends GetxController {
     final firestore = FirebaseFirestore.instance;
     firestore.collection('user').doc(phoneController.text).set({
       "uid": auth.currentUser?.uid,
-      "name": firstNameController.text + lastNameController.text,
+      "name": "${firstNameController.text} ${lastNameController.text}",
       "phone": phoneController.text,
       "email": emailController.text,
       "address": addressController.text,
+      "title": selectedGender,
     });
 
     // Saving User with Shared Preferences

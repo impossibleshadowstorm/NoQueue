@@ -104,8 +104,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         fit: BoxFit.cover,
                                         image: NetworkImage(
                                           snapshot.data!
-                                                  .data()!["profileImage"] ?? (snapshot.data!.data()![
-                                                          "profileImage"] ==
+                                                  .data()!["profileImage"] ??
+                                              (snapshot.data!
+                                                          .data()!["title"] ==
                                                       "Mr."
                                                   ? "https://www.w3schools.com/howto/img_avatar.png"
                                                   : "https://www.w3schools.com/howto/img_avatar2.png"),

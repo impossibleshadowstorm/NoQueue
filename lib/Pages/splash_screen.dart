@@ -41,6 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
       print('Token: $token');
       Get.offAll(() => LandingScreen());
     } else {
+      print("No token");
       Get.offAll(() => const UserAuthentication());
     }
   }
