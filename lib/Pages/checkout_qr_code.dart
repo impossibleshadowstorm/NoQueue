@@ -1,25 +1,34 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:noq/Pages/checkout_qr_code.dart';
-import 'package:noq/Pages/landing_screen.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../Controllers/cartController.dart';
 import '../Models/product_model.dart';
+import 'landing_screen.dart';
 
-// ignore: must_be_immutable
-class CartScreen extends StatefulWidget {
-  CartController cartController = Get.find();
-
-  CartScreen({Key? key}) : super(key: key);
+class CheckoutQRCode extends StatefulWidget {
+  const CheckoutQRCode({Key? key}) : super(key: key);
 
   @override
-  State<CartScreen> createState() => _CartScreenState();
+  State<CheckoutQRCode> createState() => _CheckoutQRCodeState();
 }
 
+extension ColorExtension on String {
+  toColor() {
+    var hexColor = replaceAll("#", "");
+    if (hexColor.length == 6) {
+      hexColor = "FF$hexColor";
+    }
+    if (hexColor.length == 8) {
+      return Color(int.parse("0x$hexColor"));
+    }
+  }
+}
 
+class _CheckoutQRCodeState extends State<CheckoutQRCode> {
+  CartController cartController = Get.find();
+  final panelController = PanelController();
 
-class _CartScreenState extends State<CartScreen> {
   _buildCartItem(CartController cartController, int index) {
     return InkWell(
       onTap: () {
@@ -42,8 +51,8 @@ class _CartScreenState extends State<CartScreen> {
             boxShadow: const [
               BoxShadow(
                 color: Colors.black38,
-                offset: Offset(0, 2),
-                blurRadius: 20.0,
+                offset: Offset(0, 1),
+                blurRadius: 10.0,
               ),
             ],
           ),
@@ -288,316 +297,245 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  var db = FirebaseFirestore.instance.collection("user");
-  var auth = FirebaseAuth.instance;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.black,
-          ),
-          iconSize: 20.0,
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return DeleteCartAlert();
-              },
-            );
-          },
-        ),
-        title: const Text(
-          "Your Cart",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 18.0,
-          ),
-        ),
-        centerTitle: true,
-        elevation: 0.0,
-        actions: [
-          SizedBox(
-            width: 50,
-            height: 40,
-            child: Center(
-              child: IconButton(
-                onPressed: () => {Get.toNamed("/scannerScreen")},
-                icon: const Icon(
-                  Icons.document_scanner,
-                  color: Colors.black,
-                ),
-                iconSize: 30.0,
+      body: SafeArea(
+        child: Stack(
+          children: <Widget>[
+            SlidingUpPanel(
+              controller: panelController,
+              minHeight: MediaQuery.of(context).size.height * 0.55,
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+              parallaxEnabled: true,
+              parallaxOffset: 0.1,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(18.0),
               ),
-            ),
-          ),
-          const SizedBox(width: 10.0),
-          FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-              future: db
-                  .doc(auth.currentUser?.phoneNumber?.replaceAll("+91", ""))
-                  .get(),
-              builder: (_, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      padding: const EdgeInsets.all(8.0),
-                      child: const CircularProgressIndicator(
-                        color: Colors.green,
-                        backgroundColor: Colors.white,
-                      ),
-                    ),
-                  );
-                }
-                return InkWell(
-                  onTap: () => {Get.toNamed("/profileScreen")},
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: NetworkImage(
-                          snapshot.data!.data()!["profileImage"] ??
-                              (snapshot.data!.data()!["title"] == "Mr."
-                                  ? "https://www.w3schools.com/howto/img_avatar.png"
-                                  : "https://www.w3schools.com/howto/img_avatar2.png"),
-                        ),
-                      ),
+              body: Column(
+                children: [
+                  // Container(
+                  //   color: Colors.red,
+                  //   width: MediaQuery.of(context).size.width,
+                  //   child: Icon(Icons.arrow_back_sharp),
+                  // ),
+                  const SizedBox(height: 50),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 15),
+                    height: MediaQuery.of(context).size.height * 0.31,
+                    width: MediaQuery.of(context).size.width * 0.62,
+                    child: Center(
+                      child: Obx(() {
+                        return QrImage(
+                          size: 300,
+                          backgroundColor: Colors.white,
+                          data: cartController.createQR(),
+                        );
+                      }),
                     ),
                   ),
-                );
-              }),
-          const SizedBox(width: 10.0)
-        ],
-      ),
-      body: Container(
-        height: MediaQuery.of(context).size.height - 240,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.green.shade800,
-              Colors.green.shade700,
-              Colors.green.shade500,
-              Colors.green.shade400,
-              Colors.green.shade200,
-              Colors.white,
-              Colors.white,
-            ],
-          ),
-        ),
-        child: Obx(
-          () => ListView.builder(
-            itemCount: widget.cartController.products.length,
-            physics: const BouncingScrollPhysics(),
-            itemBuilder: (BuildContext context, int index) {
-              return _buildCartItem(widget.cartController, index);
-            },
-          ),
-        ),
-      ),
-      bottomSheet: Container(
-        height: 160.0,
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(40.0),
-            topRight: Radius.circular(40.0),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              offset: Offset(0, -1),
-              blurRadius: 20.0,
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20.0),
-                topRight: Radius.circular(20.0),
+                ],
               ),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 10.0,
-                  ),
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      // Taxes
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              "Total Items: ",
-                              style: TextStyle(
-                                fontSize: 15.0,
-                              ),
-                            ),
-                            const SizedBox(width: 5.0),
-                            widget.cartController.products.length == 0
-                                ? const Text(
-                                    "NA",
-                                    style: TextStyle(
-                                      fontSize: 15.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                : Obx(
-                                    () => Text(
-                                      widget.cartController.products.length
-                                          .toString()
-                                          .padLeft(2, "0"),
-                                      style: const TextStyle(
-                                        fontSize: 15.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+              panelBuilder: (sc) => ListView(
+                physics: const BouncingScrollPhysics(),
+                controller: sc,
+                padding: EdgeInsets.zero,
+                children: [
+                  const SizedBox(height: 15),
+                  buildDragHandle(),
+                  Container(
+                    padding: const EdgeInsets.only(top: 5.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const SizedBox(height: 10),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.7,
+                                width: MediaQuery.of(context).size.width,
+                                child: Obx(
+                                  () => ListView.builder(
+                                    itemCount: cartController.products.length,
+                                    physics: const BouncingScrollPhysics(),
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return _buildCartItem(
+                                          cartController, index);
+                                    },
                                   ),
-                          ],
-                        ),
-                      ),
-                      // Total Quantity
-                      Expanded(
-                        // width: MediaQuery.of(context).size.width / 2,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              "Quantity: ",
-                              style: TextStyle(
-                                fontSize: 15.0,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 5.0),
-                            widget.cartController.totalQuantity == 0
-                                ? const Text(
-                                    "NA",
-                                    style: TextStyle(
-                                      fontSize: 15.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                : Obx(
-                                    () => Text(
-                                      widget.cartController.totalQuantity
-                                          .toString(),
-                                      style: const TextStyle(
-                                        fontSize: 15.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                          ],
+                              const SizedBox(height: 15),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 5.0,
-                    horizontal: 10.0,
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.attach_money,
-                        size: 16,
+                  Container(
+                    height: 80.0,
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(40.0),
+                        topRight: Radius.circular(40.0),
                       ),
-                      Expanded(
-                        child: widget.cartController.totalPrice == 0
-                            ? Text(
-                                widget.cartController.totalPrice
-                                    .toString()
-                                    .padRight(2, "0"),
-                                style: const TextStyle(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          offset: Offset(0, -1),
+                          blurRadius: 20.0,
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20.0),
+                            topRight: Radius.circular(20.0),
+                          ),
+                        ),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 5.0,
+                            horizontal: 10.0,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                "Total : ",
+                                style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 22,
                                 ),
-                              )
-                            : Obx(
-                                () => Text(
-                                  widget.cartController.totalPrice
-                                      .toString()
-                                      .padLeft(2, "0"),
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 22,
-                                  ),
-                                ),
                               ),
-                      ),
-                      ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(
-                            Colors.green.shade700,
-                          ),
-                          overlayColor: MaterialStateProperty.all(
-                            Colors.green.shade600,
-                          ),
-                          padding: MaterialStateProperty.all(
-                            const EdgeInsets.symmetric(
-                              vertical: 5.0,
-                              horizontal: 13.0,
-                            ),
+                              const SizedBox(width: 10),
+                              const Icon(
+                                Icons.currency_rupee_sharp,
+                                size: 16,
+                              ),
+                              Expanded(
+                                child: cartController.totalPrice == 0
+                                    ? Text(
+                                        cartController.totalPrice
+                                            .toString()
+                                            .padRight(2, "0"),
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 22,
+                                        ),
+                                      )
+                                    : Obx(
+                                        () => Text(
+                                          cartController.totalPrice
+                                              .toString()
+                                              .padLeft(2, "0"),
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 22,
+                                          ),
+                                        ),
+                                      ),
+                              ),
+                            ],
                           ),
                         ),
-                        onPressed: () {
-                          Get.to(() => const CheckoutQRCode());
-                        },
-                        child: Row(
-                          children: const [
-                            Text(
-                              "Checkout",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Icon(
-                              Icons.exit_to_app,
-                            ),
-                          ],
-                        ),
                       ),
-                    ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              top: 20,
+              left: 20,
+              child: InkWell(
+                onTap: () {
+                  Get.back();
+                },
+                child: Container(
+                  height: 40,
+                  width: 40,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black,
+                  ),
+                  child: const Icon(
+                    Icons.arrow_back_sharp,
+                    color: Colors.white,
+                    size: 21,
                   ),
                 ),
-              ],
+              ),
             ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        elevation: 0.0,
+        label: const Text("Done"),
+        backgroundColor: Colors.green.shade900,
+        icon: const Icon(Icons.thumb_up_alt_rounded),
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DeleteCartAlert();
+            },
+          );
+        },
+      ),
+    );
+    // return Scaffold(
+    //   body: SafeArea(
+    //     child: Center(
+    //       child: QrImage(
+    //         size: 200,
+    //         backgroundColor: Colors.white,
+    //         data: cartController.createQR(),
+    //       ),
+    //     ),
+    //   ),
+    // );
+  }
+
+  Widget buildDragHandle() {
+    return GestureDetector(
+      onTap: togglePanel,
+      child: Center(
+        child: Container(
+          width: 30,
+          height: 5,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(12.0),
           ),
         ),
       ),
     );
   }
+
+  void togglePanel() => panelController.isPanelOpen
+      ? panelController.close()
+      : panelController.open();
 }
 
-// Dialog Box for Product removal from cart
 // ignore: must_be_immutable
 class AdvanceCustomAlert extends StatelessWidget {
   final int index;
@@ -746,7 +684,7 @@ class DeleteCartAlert extends StatelessWidget {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.red,
+                  color: Colors.black,
                   blurRadius: 20.0,
                   offset: Offset(0, 10),
                 ),
@@ -761,13 +699,14 @@ class DeleteCartAlert extends StatelessWidget {
                   "Delete Cart",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Colors.red.shade300),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.red.shade300,
+                  ),
                 ),
                 const SizedBox(height: 15),
                 Text(
-                  "Are you sure you want to Delete this Cart?",
+                  "Are you done with the shopping?",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
@@ -785,7 +724,7 @@ class DeleteCartAlert extends StatelessWidget {
                     ),
                     SizedBox(width: 5),
                     Text(
-                      "You Won't be able to retrieve the ",
+                      "You Won't be able to retrieve this ",
                       maxLines: 2,
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -796,7 +735,7 @@ class DeleteCartAlert extends StatelessWidget {
                   ],
                 ),
                 const Text(
-                  "added products!",
+                  "QR Code again..!",
                   maxLines: 2,
                   textAlign: TextAlign.center,
                   style: TextStyle(

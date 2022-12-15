@@ -23,7 +23,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     DateTime date = DateTime.now();
     print("${date.year} ${date.month} ${date.day}");
     print("${date.hour} ${date.minute} ${date.second}");
-    print(auth.currentUser?.phoneNumber?.replaceAll("+91", ""));
   }
 
   @override

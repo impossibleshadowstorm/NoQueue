@@ -26,7 +26,6 @@ class _SplashScreenState extends State<SplashScreen> {
   checkIfLogin() async {
     auth.authStateChanges().listen((User? user) {
       if (user != null && mounted) {
-        print("hello");
         setState(() {
           isLogin = true;
         });
@@ -38,10 +37,8 @@ class _SplashScreenState extends State<SplashScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("userID");
     if (token != null) {
-      print('Token: $token');
       Get.offAll(() => LandingScreen());
     } else {
-      print("No token");
       Get.offAll(() => const UserAuthentication());
     }
   }

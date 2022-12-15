@@ -1,12 +1,27 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:noq/Models/cart_product_list_model.dart';
-
+import 'dart:convert';
 import '../Models/product_model.dart';
 
 class CartController extends GetxController {
+  var auth = FirebaseAuth.instance;
+
   // Cart Products List
   List<CartProductListModel> cartProduct =
       List<CartProductListModel>.empty().obs;
+
+  String createQR() {
+    Map<String, dynamic> checkout = {
+      "cartProduct": cartProduct,
+      "totalQuantity": totalQuantity,
+      "totalItem": cartProduct.length,
+      "userMobile": auth.currentUser!.phoneNumber,
+      "cartTotal": totalPrice,
+    };
+    String str = jsonEncode(checkout);
+    return str;
+  }
 
   // Number of Items in Product Description
   var numOfItemsInDescription = 1.obs;
