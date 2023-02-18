@@ -154,95 +154,97 @@ class _ScannerScreenState extends State<ScannerScreen> {
         await FirebaseFirestore.instance.collection("product").doc(value).get();
 
     if (db.data() == null) {
-      _globalKey.currentState?.showSnackBar(
-        SnackBar(
-          content: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                height: 90,
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFC72C41),
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(20),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 48),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            "Oh Snap!",
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          Spacer(),
-                          Text(
-                            "The Product Id is not Valid. Scan it Using Scanner",
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                // left: 0,
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                  ),
-                  child: SvgPicture.asset(
-                    "assets/bubbles.svg",
-                    color: const Color(0xFF801336),
-                    height: 70,
-                    width: 45,
-                  ),
-                ),
-              ),
-              Positioned(
-                top: -20,
-                left: 0,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      "assets/chat.svg",
-                      color: Colors.red.shade900,
-                      height: 48,
-                      width: 40,
-                    ),
-                    const Positioned(
-                      top: 15,
-                      child: Icon(
-                        Icons.close,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
+      Get.snackbar(
+        "Oh Snap",
+        "The Product Id is not Valid. Scan it Using Scanner"
+        // SnackBar(
+        //   content: Stack(
+        //     clipBehavior: Clip.none,
+        //     children: [
+        //       Container(
+        //         height: 90,
+        //         padding: const EdgeInsets.all(16),
+        //         decoration: const BoxDecoration(
+        //           color: Color(0xFFC72C41),
+        //           borderRadius: BorderRadius.all(
+        //             Radius.circular(20),
+        //           ),
+        //         ),
+        //         child: Row(
+        //           children: [
+        //             const SizedBox(width: 48),
+        //             Expanded(
+        //               child: Column(
+        //                 crossAxisAlignment: CrossAxisAlignment.start,
+        //                 children: const [
+        //                   Text(
+        //                     "Oh Snap!",
+        //                     style: TextStyle(
+        //                         fontSize: 18,
+        //                         color: Colors.white,
+        //                         fontWeight: FontWeight.bold),
+        //                   ),
+        //                   Spacer(),
+        //                   Text(
+        //                     "The Product Id is not Valid. Scan it Using Scanner",
+        //                     maxLines: 2,
+        //                     overflow: TextOverflow.ellipsis,
+        //                     style: TextStyle(
+        //                       fontSize: 12,
+        //                       fontWeight: FontWeight.w500,
+        //                       color: Colors.white,
+        //                     ),
+        //                   ),
+        //                 ],
+        //               ),
+        //             ),
+        //           ],
+        //         ),
+        //       ),
+        //       Positioned(
+        //         bottom: 0,
+        //         // left: 0,
+        //         child: ClipRRect(
+        //           borderRadius: const BorderRadius.only(
+        //             bottomLeft: Radius.circular(20),
+        //           ),
+        //           child: SvgPicture.asset(
+        //             "assets/bubbles.svg",
+        //             color: const Color(0xFF801336),
+        //             height: 70,
+        //             width: 45,
+        //           ),
+        //         ),
+        //       ),
+        //       Positioned(
+        //         top: -20,
+        //         left: 0,
+        //         child: Stack(
+        //           alignment: Alignment.center,
+        //           children: [
+        //             SvgPicture.asset(
+        //               "assets/chat.svg",
+        //               color: Colors.red.shade900,
+        //               height: 48,
+        //               width: 40,
+        //             ),
+        //             const Positioned(
+        //               top: 15,
+        //               child: Icon(
+        //                 Icons.close,
+        //                 color: Colors.white,
+        //                 size: 16,
+        //               ),
+        //             ),
+        //           ],
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        //   behavior: SnackBarBehavior.floating,
+        //   backgroundColor: Colors.transparent,
+        //   elevation: 0,
+        // ),
       );
     }
     else {
