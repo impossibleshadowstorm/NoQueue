@@ -244,7 +244,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
           elevation: 0,
         ),
       );
-    } else {
+    }
+    else {
       // db.data()?.values.map((e) => print(e));
       Get.toNamed(
         "/productDescriptionScreen",
