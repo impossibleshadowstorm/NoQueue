@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:noq/Controllers/authController.dart';
 import 'package:noq/Controllers/cartController.dart';
 import 'package:noq/Controllers/scannerController.dart';
-import 'package:noq/Pages/Login/OTP/otp_screen.dart';
 import 'package:noq/Pages/cart_screen.dart';
 import 'package:noq/Pages/Login/final_login_screen.dart';
 import 'package:noq/Pages/landing_screen.dart';
@@ -12,7 +11,6 @@ import 'package:noq/Pages/profile_screen.dart';
 import 'package:noq/Pages/Scanner/scanner_screen.dart';
 import 'package:noq/Pages/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'Controllers/userRegistrationController.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
