@@ -327,7 +327,7 @@ class _CheckoutQRCodeState extends State<CheckoutQRCode> {
                     width: MediaQuery.of(context).size.width * 0.62,
                     child: Center(
                       child: Obx(() {
-                        return QrImage(
+                        return QrImageView(
                           size: 300,
                           backgroundColor: Colors.white,
                           data: cartController.createQR(),
