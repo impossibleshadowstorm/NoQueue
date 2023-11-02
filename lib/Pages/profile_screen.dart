@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:noq/Controllers/authController.dart';
 import 'package:noq/Pages/History/my_orders.dart';
+import 'package:noq/Pages/History/wishlist.dart';
+import 'package:noq/Pages/cart_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -20,9 +22,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    DateTime date = DateTime.now();
-    print("${date.year} ${date.month} ${date.day}");
-    print("${date.hour} ${date.minute} ${date.second}");
   }
 
   @override
@@ -52,7 +51,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     // Appbar
                     SizedBox(
                       width: MediaQuery.of(context).size.width,
-                      // color: Colors.blue,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -97,19 +95,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   child: Container(
                                     height: 87.5,
                                     width: 87.5,
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
                                       image: DecorationImage(
                                         fit: BoxFit.cover,
-                                        image: NetworkImage(
-                                          snapshot.data!
-                                                  .data()!["profileImage"] ??
-                                              (snapshot.data!
-                                                          .data()!["title"] ==
-                                                      "Mr."
-                                                  ? "https://www.w3schools.com/howto/img_avatar.png"
-                                                  : "https://www.w3schools.com/howto/img_avatar2.png"),
-                                        ),
+                                        image: AssetImage(
+                                            "assets/img_avatar.png"
+                                            // image: NetworkImage(
+                                            //   snapshot.data!
+                                            //           .data()!["profileImage"] ??
+                                            //       (snapshot.data!
+                                            //                   .data()!["title"] ==
+                                            //               "Mr."
+                                            //           ? "https://www.w3schools.com/howto/img_avatar.png"
+                                            //           : "https://www.w3schools.com/howto/img_avatar2.png"),
+                                            ),
                                       ),
                                     ),
                                   ),
@@ -176,7 +176,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           // Name
                           Text(
-                            snapshot.data!.data()!["name"],
+                            toTitleCase(snapshot.data!.data()!["name"]),
                             textDirection: TextDirection.ltr,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -191,184 +191,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Set of Cart Wallet
                           Column(
                             children: [
-                              // My Cart
-                              InkWell(
-                                onTap: () {
-                                  Get.toNamed("/cartScreen");
-                                },
-                                splashColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Container(
-                                            width: 60,
-                                            height: 60,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              // color: Color(0xFFFFF0E6),
-                                              color: Colors.green.shade50,
-                                            ),
-                                            child: Icon(
-                                              Icons.shopping_cart,
-                                              size: 20.0,
-                                              color: Colors.green.shade700,
-                                              // color: Color(0xFFFFA977),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          const Text(
-                                            "My cart",
-                                            textDirection: TextDirection.ltr,
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 18.0,
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50,
-                                      width: 50,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: Colors.green.shade50,
-                                      ),
-                                      child: Icon(
-                                        Icons.arrow_forward_ios_rounded,
-                                        size: 20.0,
-                                        color: Colors.green.shade900,
-                                      ),
-                                    )
-                                  ],
-                                ),
+                              optionsRow(
+                                Icons.shopping_cart,
+                                "My Cart",
+                                Colors.green.shade50,
+                                Colors.green.shade700,
+                                CartScreen(),
                               ),
-                              const SizedBox(height: 10),
-
-                              // Wallet
-                              InkWell(
-                                onTap: () {
-                                  Get.to(() => const MyOrders());
-                                },
-                                splashColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Container(
-                                            width: 60,
-                                            height: 60,
-                                            decoration: const BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Color(0xFFECEAFF),
-                                            ),
-                                            child: const Icon(
-                                              Icons.history_sharp,
-                                              size: 20.0,
-                                              color: Color(0xFF5520FF),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          const Text(
-                                            "My Orders",
-                                            textDirection: TextDirection.ltr,
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 50,
-                                      width: 50,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: Color(0xFFECEAFF),
-                                      ),
-                                      child: const Icon(
-                                        Icons.arrow_forward_ios_rounded,
-                                        size: 20.0,
-                                        color: Color(0xFF5520FF),
-                                      ),
-                                    )
-                                  ],
-                                ),
+                              optionsRow(
+                                Icons.shopping_cart,
+                                "My Orders",
+                                const Color(0xFFECEAFF),
+                                const Color(0xFF5520FF),
+                                const MyOrders(),
                               ),
-                              const SizedBox(height: 10),
-
-                              // Settings
-                              // Row(
-                              //   mainAxisAlignment:
-                              //       MainAxisAlignment.spaceBetween,
-                              //   children: [
-                              //     Container(
-                              //       child: Row(
-                              //         mainAxisAlignment:
-                              //             MainAxisAlignment.spaceBetween,
-                              //         children: [
-                              //           Container(
-                              //             width: 60,
-                              //             height: 60,
-                              //             decoration: const BoxDecoration(
-                              //               shape: BoxShape.circle,
-                              //               color: Color(0xFFE6F6FF),
-                              //             ),
-                              //             child: const Icon(
-                              //               Icons.settings,
-                              //               size: 20.0,
-                              //               color: Color(0xFF009DEC),
-                              //             ),
-                              //           ),
-                              //           const SizedBox(width: 10),
-                              //           const Text(
-                              //             "Settings",
-                              //             textDirection: TextDirection.ltr,
-                              //             style: TextStyle(
-                              //                 color: Colors.black,
-                              //                 fontSize: 18.0,
-                              //                 fontWeight: FontWeight.w400),
-                              //           ),
-                              //         ],
-                              //       ),
-                              //     ),
-                              //     Container(
-                              //       height: 50,
-                              //       width: 50,
-                              //       decoration: BoxDecoration(
-                              //         borderRadius: BorderRadius.circular(10),
-                              //         color: Color(0xFFE6F6FF),
-                              //       ),
-                              //       child: const Icon(
-                              //         Icons.arrow_forward_ios_rounded,
-                              //         size: 20.0,
-                              //         color: Color(0xFF009DEC),
-                              //       ),
-                              //     ),
-                              //   ],
-                              // ),
-                              const SizedBox(height: 10),
+                              optionsRow(
+                                Icons.favorite,
+                                "Make Items List",
+                                Colors.green.shade50,
+                                const Color(0xFF36685b),
+                                const Wishlist(),
+                              ),
                             ],
                           ),
 
@@ -383,10 +230,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   vertical: 12, horizontal: 14),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                color: Colors.black12,
+                                color: const Color(0xFFF8ffff),
                               ),
-                              child: Row(
-                                children: const [
+                              child: const Row(
+                                children: [
                                   Icon(
                                     Icons.output_sharp,
                                     size: 20.0,
@@ -414,6 +261,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             }),
       ),
+    );
+  }
+
+  String toTitleCase(String text) {
+    if (text.isEmpty) {
+      return "";
+    }
+
+    List<String> words = text.split(" ");
+    for (int i = 0; i < words.length; i++) {
+      if (words[i].isNotEmpty) {
+        words[i] = words[i][0].toUpperCase() + words[i].substring(1);
+      }
+    }
+
+    return words.join(" ");
+  }
+
+  Widget optionsRow(IconData iconData, String title, Color bgColor,
+      Color iconColor, Widget navigate) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: () {
+            Get.to(() => navigate);
+          },
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: bgColor,
+                    ),
+                    child: Icon(
+                      iconData,
+                      size: 20.0,
+                      color: iconColor,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    title,
+                    textDirection: TextDirection.ltr,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: bgColor,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 20.0,
+                  color: iconColor,
+                ),
+              )
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+      ],
     );
   }
 }

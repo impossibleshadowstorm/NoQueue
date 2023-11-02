@@ -87,24 +87,31 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                     const SizedBox(height: 40.00),
                     Container(
                       width: MediaQuery.of(context).size.width,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: const [
-                          Icon(
-                            Icons.shopping_cart_outlined,
-                            size: 170,
-                            color: Colors.white,
-                          ),
-                          Positioned(
-                            top: 40,
-                            child: Icon(
-                              Icons.access_time,
-                              size: 40,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+                      height: MediaQuery.of(context).size.height * 0.4,
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage("assets/hlo.png"),
+                          fit: BoxFit.contain,
+                        ),
                       ),
+                      // child: const Stack(
+                      //   alignment: Alignment.center,
+                      //   children: [
+                      //     Icon(
+                      //       Icons.shopping_cart_outlined,
+                      //       size: 170,
+                      //       color: Colors.white,
+                      //     ),
+                      //     Positioned(
+                      //       top: 40,
+                      //       child: Icon(
+                      //         Icons.access_time,
+                      //         size: 40,
+                      //         color: Colors.white,
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
                     ),
                   ],
                 ),

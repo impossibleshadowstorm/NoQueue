@@ -6,6 +6,7 @@ import 'package:noq/Animations/FadeAnimation.dart';
 import 'package:noq/Controllers/authController.dart';
 import 'package:noq/Controllers/cartController.dart';
 import 'package:noq/Pages/Login/final_login_screen.dart';
+import 'package:noq/Pages/profile_screen.dart';
 
 class LandingScreen extends StatefulWidget {
   LandingScreen({Key? key}) : super(key: key);
@@ -17,7 +18,6 @@ class LandingScreen extends StatefulWidget {
 
 class _LandingScreenState extends State<LandingScreen> {
   AuthController authController = Get.find();
-
 
   @override
   Widget build(BuildContext context) {
@@ -32,20 +32,29 @@ class _LandingScreenState extends State<LandingScreen> {
               Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height * 0.7,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    begin: Alignment.topLeft,
+                    stops: [0, 1],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
                     colors: [
-                      Colors.green.shade700,
-                      Colors.green.shade600,
-                      Colors.green.shade500,
-                      Colors.green.shade300,
+                      Color(0xFFFFFFFF),
+                      Color(0xFF4CAF50),
                     ],
                   ),
-                  image: const DecorationImage(
+                  // gradient: LinearGradient(
+                  //   begin: Alignment.topLeft,
+                  //   colors: [
+                  //     Colors.green.shade700,
+                  //     Colors.green.shade600,
+                  //     Colors.green.shade500,
+                  //     Colors.green.shade300,
+                  //   ],
+                  // ),
+                  image: DecorationImage(
                     fit: BoxFit.contain,
                     image: AssetImage(
-                      "assets/logo.png",
+                      "assets/start-shopping.png",
                     ),
                   ),
                 ),
@@ -63,8 +72,8 @@ class _LandingScreenState extends State<LandingScreen> {
                       2,
                       TextButton(
                         onPressed: () {
-
-                          authController.logoutUser();
+                          // authController.logoutUser();
+                          Get.to(() => const ProfileScreen());
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 50.0),
@@ -82,7 +91,8 @@ class _LandingScreenState extends State<LandingScreen> {
                                 vertical: 15.0,
                               ),
                               child: Icon(
-                                Icons.power_settings_new_outlined,
+                                Icons.person,
+                                // Icons.power_settings_new_outlined,
                                 color: Colors.red,
                               ),
                             ),
@@ -98,7 +108,7 @@ class _LandingScreenState extends State<LandingScreen> {
               alignment: Alignment.bottomCenter,
               child: FadeAnimation(
                 1.3,
-                Container(
+                SizedBox(
                   height: MediaQuery.of(context).size.height * 0.35,
                   width: MediaQuery.of(context).size.width,
                   child: Container(
