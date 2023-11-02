@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:noq/Pages/History/store_listing.dart';
 import 'package:noq/Pages/checkout_qr_code.dart';
 import 'package:noq/Pages/landing_screen.dart';
 import '../Controllers/cartController.dart';
@@ -16,8 +18,6 @@ class CartScreen extends StatefulWidget {
   @override
   State<CartScreen> createState() => _CartScreenState();
 }
-
-
 
 class _CartScreenState extends State<CartScreen> {
   _buildCartItem(CartController cartController, int index) {
@@ -38,7 +38,7 @@ class _CartScreenState extends State<CartScreen> {
           width: double.infinity,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(35.0),
+            borderRadius: BorderRadius.circular(15.0),
             boxShadow: const [
               BoxShadow(
                 color: Colors.black38,
@@ -60,8 +60,8 @@ class _CartScreenState extends State<CartScreen> {
                     height: 104.0,
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(30.0),
-                        bottomLeft: Radius.circular(30.0),
+                        topLeft: Radius.circular(10.0),
+                        bottomLeft: Radius.circular(10.0),
                       ),
                       // color: Colors.green.shade300,
                       color: cartController
@@ -327,6 +327,20 @@ class _CartScreenState extends State<CartScreen> {
             height: 40,
             child: Center(
               child: IconButton(
+                onPressed: () => {Get.to(() => const StoreListing())},
+                icon: const Icon(
+                  Icons.store,
+                  color: Colors.black,
+                ),
+                iconSize: 30.0,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 50,
+            height: 40,
+            child: Center(
+              child: IconButton(
                 onPressed: () => {Get.toNamed("/scannerScreen")},
                 icon: const Icon(
                   Icons.document_scanner,
@@ -362,15 +376,12 @@ class _CartScreenState extends State<CartScreen> {
                   child: Container(
                     width: 40,
                     height: 40,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       image: DecorationImage(
                         fit: BoxFit.cover,
-                        image: NetworkImage(
-                          snapshot.data!.data()!["profileImage"] ??
-                              (snapshot.data!.data()!["title"] == "Mr."
-                                  ? "https://www.w3schools.com/howto/img_avatar.png"
-                                  : "https://www.w3schools.com/howto/img_avatar2.png"),
+                        image: AssetImage(
+                          "assets/img_avatar.png",
                         ),
                       ),
                     ),
@@ -382,30 +393,51 @@ class _CartScreenState extends State<CartScreen> {
       ),
       body: Container(
         height: MediaQuery.of(context).size.height - 240,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            stops: [0, 1],
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
             colors: [
-              Colors.green.shade800,
-              Colors.green.shade700,
-              Colors.green.shade500,
-              Colors.green.shade400,
-              Colors.green.shade200,
-              Colors.white,
-              Colors.white,
+              Color(0xFFFFFFFF),
+              Color(0xFF4CAF50),
             ],
           ),
         ),
-        child: Obx(
-          () => ListView.builder(
-            itemCount: widget.cartController.products.length,
-            physics: const BouncingScrollPhysics(),
-            itemBuilder: (BuildContext context, int index) {
-              return _buildCartItem(widget.cartController, index);
-            },
-          ),
-        ),
+        child: widget.cartController.products.length == 0
+            ? Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width * 0.2,
+                    vertical: MediaQuery.of(context).size.height * 0.1),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Image(
+                        image: AssetImage("assets/empty.png"),
+                        fit: BoxFit.contain,
+                      ),
+                      Text(
+                        "Add Some Items.!",
+                        style: GoogleFonts.poppins(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 22.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : Obx(
+                () => ListView.builder(
+                  itemCount: widget.cartController.products.length,
+                  physics: const BouncingScrollPhysics(),
+                  itemBuilder: (BuildContext context, int index) {
+                    return _buildCartItem(widget.cartController, index);
+                  },
+                ),
+              ),
       ),
       bottomSheet: Container(
         height: 160.0,
@@ -570,8 +602,8 @@ class _CartScreenState extends State<CartScreen> {
                         onPressed: () {
                           Get.to(() => const CheckoutQRCode());
                         },
-                        child: Row(
-                          children: const [
+                        child: const Row(
+                          children: [
                             Text(
                               "Checkout",
                               style: TextStyle(color: Colors.white),
@@ -775,9 +807,9 @@ class DeleteCartAlert extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 15),
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                  children: [
                     Icon(
                       Icons.error_outline,
                       size: 12,

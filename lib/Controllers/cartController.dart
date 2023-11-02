@@ -6,6 +6,7 @@ import '../Models/product_model.dart';
 
 class CartController extends GetxController {
   var auth = FirebaseAuth.instance;
+  var expanded = 0.obs;
 
   // Cart Products List
   List<CartProductListModel> cartProduct =
